@@ -8,9 +8,20 @@ require 'include/libs/Slim/Slim.php';
 
 $app = new \Slim\Slim();
 
-
 //Global Variables
 $user_id = NULL;
+
+
+//authenticate_user usage
+// $app->get('/ACTION', 'authenticate_user', function() use ($app) {
+// }
+//
+// OR
+//
+// $app->post('/ACTION', 'authenticate_user', function() use ($app) {
+// }
+//
+
 
 function authenticate_user(\Slim\Route $route) {
     $response = array();
@@ -48,49 +59,55 @@ function authenticate_user(\Slim\Route $route) {
 
 
 
-
-
 /**
- * User Login
- * url - /login
+ * validate-token
+ * url - /validate-token
  * method - POST
- * params - mobile, password
+ * params - 
  */
-$app->post('/login', function() use ($app) {
-    // check for required params
-    verifyRequiredParams(array('mobile', 'password'));
 
-    // reading post params
-    $mobile = $app->request()->post('mobile');
-    $password = $app->request()->post('password');
+$app->post('/validate-token', function() use ($app) {
+    // check for required param, if required
+    //verifyRequiredParams(array('PARAM1', 'PARAM2'));
+
+    // read post params, if required
+    //$param1 = $app->request()->post('PARAM1');
+    //$param2 = $app->request()->post('PARAM2');
+
+	// define response array 
     $response = array();
 
-	require_once dirname(__FILE__) . '/include/class/class_user.php';
-	$app_user = New User();
+	//add your class, if required
+	//require_once dirname(__FILE__) . '/include/class/YOUR_CLASS.php';
+	//$app_class = New CALSSNAME();
 
-    // check for correct mobile and password
-    if ($app_user->checkLogin($mobile, $password)) {
-        // get the user by mobile
-        $user = $app_user->getUserByMobile($mobile);
+    // Write code for process the request
+	//please replace $validate ans $user_data with your variables
+	$validate = false;
+	$user_data = array();
 
-        if ($user != NULL) {
-            $response["error"] = false;
-            $response['name'] = $user['name'];
-            $response['mobile'] = $user['mobile'];
-            $response['app_id'] = $user['app_id'];
+        if ($validate == true) {
+            $response["action"] = "validate-token";
+            $response["error"] = 0;
+            $response["success"] = 1;
+            $response['error_message'] = "";
+            $response['user_data'] = $user_data;
         } else {
-            // unknown error occurred
-            $response['error'] = true;
-            $response['message'] = "An error occurred. Please try again";
+            //  error occurred
+            $response["action"] = "validate-token";
+            $response["error"] = 1;
+            $response["success"] = 0;
+            $response['error_message'] = "Invalid token identified";
+			$response['user_data'] = $user_data;
         }
-    } else {
-        // user credentials are wrong
-        $response['error'] = true;
-        $response['message'] = 'Login failed. Incorrect credentials';
-    }
 
     ReturnResponse(200, $response);
 });
+
+
+
+
+
 
 
 
@@ -135,7 +152,7 @@ function verifyRequiredParams($required_fields) {
         $app = \Slim\Slim::getInstance();
         $response["error"] = true;
         $response["message"] = 'Required field(s) ' . substr($error_fields, 0, -2) . ' is missing or empty';
-        echoRespnse(400, $response);
+        ReturnResponse(400, $response);
         $app->stop();
     }
 }
@@ -148,7 +165,7 @@ function validateEmail($email) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $response["error"] = true;
         $response["message"] = 'Email is not valid';
-        echoRespnse(400, $response);
+        ReturnResponse(400, $response);
         $app->stop();
     }
 }
