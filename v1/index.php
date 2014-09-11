@@ -7,6 +7,8 @@ require 'include/libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
 $app = new \Slim\Slim();
+require_once dirname(__FILE__) . '/include/class/class_customer.php';
+$customer = New Customer();
 
 //Global Variables
 $user_id = NULL;
@@ -139,7 +141,34 @@ $app->post('/forget_password', function() use ($app) {
  */
 
 $app->post('/sign_up', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','email', 'mobile','name','app_id','IMEI'));
 
+	// read post params, if required
+	$user_data = array();
+	$user_data['action'] = $app->request()->post('action');
+	$user_data['email'] = $app->request()->post('email');
+	$user_data['mobile'] = md5($app->request()->post('mobile'));
+	$user_data['name'] = $app->request()->post('name');
+	$user_data['app_id'] = $app->request()->post('app_id');
+	$user_data['IMEI'] = $app->request()->post('IMEI');
+
+	if($customer->getUserByMobile($user_data['mobile'])){//customer exists
+		$response["action"] = "validate-token";
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response['error_message'] = "Invalid token identified";
+	}else{
+	
+		$customer_id = $customer->sign_up($user_data);
+	
+		if($customer_id){
+	
+		}else{
+	
+		}
+	}
+	ReturnResponse(200, $response);
 });
 
 

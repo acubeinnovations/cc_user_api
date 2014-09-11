@@ -8,6 +8,7 @@ if ( !defined('CHECK_INCLUDED') ){
 class Customer {
 
 	private $connection;
+	public  $error_description;
 
 	function __construct() {
 		require_once dirname(__FILE__) . '/class_connection.php';
@@ -15,6 +16,28 @@ class Customer {
 		$this->connection = $db->connect();
 	}
 	
+	public function  sign_up($user_data = array())
+	{
+		//new customer
+		$strSQL = "INSERT INTO customers(name,email,mobile,app_id,IMEI) VALUES(";
+		$strSQL .= "'".mysql_real_escape_string($user_data['name']);
+		$strSQL .= "'".mysql_real_escape_string($user_data['email']);
+		$strSQL .= "'".mysql_real_escape_string($user_data['mobile']);
+		$strSQL .= "'".mysql_real_escape_string($user_data['app_id']);
+		$strSQL .= "'".mysql_real_escape_string($user_data['IMEI']);
+		$strSQL .= "')";
+	
+		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
+		if(mysql_affected_rows($this->connection) == 1){
+			$this->error_description = "Registration success password sent through sms";
+			return mysql_insert_id();
+		}else{
+			$this->error_description = "Customer not added";
+			return false;
+		}
+			
+		
+	}
 	
 
 
