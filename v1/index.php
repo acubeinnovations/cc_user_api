@@ -77,6 +77,7 @@ $app->post('/validate-token', function() use ($app) {
 	// define response array 
     $response = array();
 
+
 	//add your class, if required
 	//require_once dirname(__FILE__) . '/include/class/YOUR_CLASS.php';
 	//$app_class = New CALSSNAME();
