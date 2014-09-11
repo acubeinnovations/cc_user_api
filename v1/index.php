@@ -63,57 +63,118 @@ function authenticate_user(\Slim\Route $route) {
  * validate-token
  * url - /validate-token
  * method - POST
- * params - 
+ * params - action,token,app_id,IMEI
  */
 
 $app->post('/validate-token', function() use ($app) {
-    // check for required param, if required
-    //verifyRequiredParams(array('PARAM1', 'PARAM2'));
+	// check for required param, if required
+	verifyRequiredParams(array('action', 'token','app_id','IMEI'));
 
-    // read post params, if required
-    //$param1 = $app->request()->post('PARAM1');
-    //$param2 = $app->request()->post('PARAM2');
+	// read post params, if required
+	$action = $app->request()->post('action');
+	$token = md5($app->request()->post('token'));
+	$app_id = $app->request()->post('app_id');
+	$IMEI = $app->request()->post('IMEI');
+
 
 	// define response array 
-    $response = array();
+	$response = array();
 
 
 	//add your class, if required
-	//require_once dirname(__FILE__) . '/include/class/YOUR_CLASS.php';
-	//$app_class = New CALSSNAME();
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = New Customer();
+	$validate = $customer->validate_token($token,$app_id,$IMEI);
 
-    // Write code for process the request
+
 	//please replace $validate ans $user_data with your variables
-	$validate = false;
+	//$validate = false;
 	$user_data = array();
 
-        if ($validate == true) {
-            $response["action"] = "validate-token";
-            $response["error"] = 0;
-            $response["success"] = 1;
-            $response['error_message'] = "";
-            $response['user_data'] = $user_data;
-        } else {
-            //  error occurred
-            $response["action"] = "validate-token";
-            $response["error"] = 1;
-            $response["success"] = 0;
-            $response['error_message'] = "Invalid token identified";
-			$response['user_data'] = $user_data;
-        }
+	if ($validate) {
+		$user_data['id'] = $validate['id'];
+		$user_data['name'] = $validate['name'];
+		$user_data['token'] = $validate['token'];
 
-    ReturnResponse(200, $response);
+		$response["action"] = "validate-token";
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response['error_message'] = "";
+		$response['user_data'] = $user_data;
+	} else {
+	//  error occurred
+		$response["action"] = "validate-token";
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response['error_message'] = "Invalid token identified";
+	}
+
+	ReturnResponse(200, $response);
 });
 
 
+/**
+ * forget_password
+ * url - /forget_password
+ * method - POST
+ * params - action,mobile,app_id,IMEI
+ */
+
+$app->post('/forget_password', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action', 'mobile','app_id','IMEI'));
+
+	// read post params, if required
+	$action = $app->request()->post('action');
+	$mobile = md5($app->request()->post('mobile'));
+	$app_id = $app->request()->post('app_id');
+	$IMEI = $app->request()->post('IMEI');
+});
+
+/**
+ * sign_up
+ * url - /sign_up
+ * method - POST
+ * params - action,email,mobile,name,app_id,IMEI
+ */
+
+$app->post('/sign_up', function() use ($app) {
+
+});
 
 
+/**
+ * login
+ * url - /login
+ * method - POST
+ * params - action,mobile,password,app_id,IMEI
+ */
 
+$app->post('/login', function() use ($app) {
 
+});
 
+/**
+ * booking
+ * url - /booking
+ * method - POST
+ * params - action,from,to,mobile,date,time,priority,app_id,IMEI,token
+ */
 
+$app->post('/booking', function() use ($app) {
 
+});
 
+/**
+ * booking_list
+ * url - /booking_list
+ * method - POST
+ * params - action,app_id,IMEI,token
+ */
+
+$app->post('/booking_list', function() use ($app) {
+
+});
 
 
 
