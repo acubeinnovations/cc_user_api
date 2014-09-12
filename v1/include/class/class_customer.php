@@ -168,11 +168,14 @@ class Customer {
 
 
 	//validate token
-	public function validate_token($token,$app_id,$IMEI)
+	public function validate_token($mobile,$token,$app_id,$IMEI)
 	{
-		$strSQL = "SELECT * FROM customers WHERE token = '".mysql_real_escape_string($token);
+		$strSQL = "SELECT * FROM customers WHERE token = '".mysql_real_escape_string(md5($token));
 		$strSQL .= "' AND app_id = '".mysql_real_escape_string($app_id);
-		$strSQL .= "' AND imei = '".mysql_real_escape_string($IMEI)."'";
+		$strSQL .= "' AND imei = '".mysql_real_escape_string($IMEI);
+		$strSQL .= "' AND mobile = '".mysql_real_escape_string($mobile);
+		$strSQL .= "'";
+
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 		if ( mysql_num_rows($rsRES) == 1 ){
 			return mysql_fetch_assoc($rsRES);

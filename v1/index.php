@@ -97,14 +97,14 @@ $app->post('/validate-token', function() use ($app) {
 		$user_data['name'] = $validate['name'];
 		$user_data['token'] = $validate['token'];
 
-		$response["action"] = "validate-token";
+		$response["action"] = $action;
 		$response["error"] = 0;
 		$response["success"] = 1;
 		$response['error_message'] = "";
 		$response['user_data'] = $user_data;
 	} else {
 	//  error occurred
-		$response["action"] = "validate-token";
+		$response["action"] = $action;
 		$response["error"] = 1;
 		$response["success"] = 0;
 		$response['error_message'] = "Invalid token identified";
@@ -133,7 +133,7 @@ $app->post('/sign-up', function() use ($app) {
 
 	// read post params, if required
 	$user_data = array();
-	$user_data['action'] = $app->request()->post('action');
+	$action = $app->request()->post('action');
 	$user_data['email'] = $app->request()->post('email');
 	$user_data['mobile'] = $app->request()->post('mobile');
 	$user_data['name'] = $app->request()->post('name');
@@ -141,7 +141,7 @@ $app->post('/sign-up', function() use ($app) {
 	$user_data['IMEI'] = $app->request()->post('IMEI');
 
 	if($customer->getUserByMobile($user_data['mobile'])){//customer exists
-		$response["action"] = "sign-up";
+		$response["action"] = $action;
 		$response["error"] = 1;
 		$response["success"] = 0;
 		$response['error_message'] = "Already registered with this mobile number";
@@ -158,13 +158,13 @@ $app->post('/sign-up', function() use ($app) {
 			$message = 'Thankyou for registering  with Connect’n’Cabs. Your username is “'.$cust_details['mobile'].' and password is “'.$cust_details['password'].'". Enjoy our Service.';
 			//$sms->send_sms($cust_details['mobile'] ,$message);
 
-			$response["action"] = "sign-up";
+			$response["action"] = $action;
 			$response["error"] = 0;
 			$response["success"] = 1;
 			$response['error_message'] = "";
 			$response['success_message'] = "Registration success password sent through sms";
 		}else{
-			$response["action"] = "sign-up";
+			$response["action"] = $action;
 			$response["error"] = 1;
 			$response["success"] = 0;
 			$response['error_message'] = "Registration failed";
@@ -203,13 +203,13 @@ $app->post('/login', function() use ($app) {
 
 	$user_data = $customer->checkLogin($mobile, $password,$app_id,$IMEI);
 	if($user_data){
-		$response["action"] = "login";
+		$response["action"] = $action;
 		$response["error"] = 0;
 		$response["success"] = 1;
 		$response['error_message'] = "";
 		$response['user_data'] = $user_data;	
 	}else{
-		$response["action"] = "login";
+		$response["action"] = $action;
 		$response["error"] = 1;
 		$response["success"] = 0;
 		$response['error_message'] = "Invalid token identified";
@@ -251,14 +251,14 @@ $app->post('/forget-password', function() use ($app) {
 		$message = 'Thankyou for interest     with Connect’n’Cabs. Your one time password is “'.$reset_password.'”.     Enjoy our Service.';
 		//$sms->send_sms($cust_details['mobile'] ,$message);
 
-		$response["action"] = "forget-password";
+		$response["action"] = $action;
 		$response["error"] = 0;
 		$response["success"] = 1;
 		$response['error_message'] = "";
 		$response['success_message'] = "New password sent through sms";	
 
 	}else{
-		$response["action"] = "forget-password";
+		$response["action"] = $action;
 		$response["error"] = 1;
 		$response["success"] = 0;
 		$response['error_message'] = "No account registered with this mobile";
@@ -277,7 +277,71 @@ $app->post('/forget-password', function() use ($app) {
  */
 
 $app->post('/booking', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token'));
 
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = new Customer();
+
+	// define response array
+	$trip_data = array();
+	$response = array();
+	$mobile = $app->request()->post('mobile');
+	$token = $app->request()->post('token');
+	$app_id = $app->request()->post('app_id');
+	$IMEI  = $app->request()->post('IMEI');
+
+	$user_detail = $customer->validate_token($mobile,$token,$app_id,$IMEI);
+
+	
+	if($user_detail){
+		require_once dirname(__FILE__) . '/include/class/class_trip.php';
+		$trip = new Trip();
+
+	
+		// read post params
+		$action = $app->request()->post('action');
+		$dataArray = array(
+				'trip_from' => $app->request()->post('from'),
+				'trip_to'  => $app->request()->post('to'),
+				'booking_date'  => date('Y-m-d',strtotime($app->request()->post('date'))),
+				'booking_time' => date('h:i:s',strtotime($app->request()->post('time'))),
+				'priority'  => $app->request()->post('priority'),
+				'customer_id' => $user_detail['id'],
+				'customer_type_id'  => $app->request()->post('customer_type_id'),
+				);
+	
+		 $trip_id = $trip->booking($dataArray);
+
+		if($trip_id){
+	
+			$trip_detail = $trip->booking_details($trip_id);
+
+			$trip_data['name'] = $user_detail['name'];
+			$trip_data['mobile'] = $user_detail['mobile'];
+			$trip_data['from'] = $trip_detail['trip_from'];
+			$trip_data['to'] = $trip_detail['trip_to'];
+			$trip_data['date'] = $trip_detail['booking_date'];
+			$trip_data['confirmation'] = "1";
+
+			$response["action"] = $action;
+			$response["error"] = 0;
+			$response["success"] = 1;
+			$response["booking_details"] = $trip_data;	
+		}else{
+			$response["action"] = $action;
+			$response["error"] = 1;
+			$response["success"] = 0;
+			$response["message"] = "unexpected error occured try later";
+		}
+	}else{
+		$response["action"] = $action;
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "Invalid Token";
+	}
+	ReturnResponse(200, $response);
+	
 });
 
 /**
