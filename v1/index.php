@@ -241,7 +241,8 @@ $app->post('/forget-password', function() use ($app) {
 	// define response array 
 	$response = array();
 
-	$reset_password = $customer->checkMobileAccountExists($mobile,$app_id,$IMEI);
+	$new_password = $customer->checkMobileAccountExists($mobile,$app_id,$IMEI);
+	$reset_password = $customer->reset_password($mobile,$app_id,$IMEI,$new_password);
 
 	if($reset_password){
 

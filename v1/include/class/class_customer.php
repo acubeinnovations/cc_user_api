@@ -63,7 +63,13 @@ class Customer {
 	//create random password
 	public function createPassword()
 	{
-		return "Bget895";
+		
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+   		$randomString = '';
+    		for ($i = 0; $i < 6; $i++) {
+        		$randomString .= $characters[rand(0, strlen($characters) - 1)];
+    		}
+    		return $randomString;
 	}
 	
 
@@ -81,10 +87,9 @@ class Customer {
 	public function checkLogin($mobile, $password,$app_id,$IMEI) {
 
 		$strSQL = "SELECT id,name FROM customers WHERE mobile = '".mysql_real_escape_string($mobile);
-		//$strSQL .= "' AND password='".md5($password)."'";
-		$strSQL .= "' AND password='".$password."";
-		$strSQL .= "' AND app_id ='".$app_id."";
-		$strSQL .= "' AND imei ='".$IMEI."'";
+		$strSQL .= "' AND password='".mysql_real_escape_string(md5($password))."'";
+		$strSQL .= "' AND app_id ='".mysql_real_escape_string($app_id)."";
+		$strSQL .= "' AND imei ='".mysql_real_escape_string($IMEI)."'";
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 		if ( mysql_num_rows($rsRES) ==1 ){
 			$token = $this->createToken($mobile);
@@ -123,6 +128,21 @@ class Customer {
 		}
 		else{
 			return false;//user not found
+		}
+	}
+
+	//reset password with appid ,imei and mobile
+	public function reset_password($mobile,$app_id,$IMEI,$new_password)
+	{
+		$strSQL = "UPDATE customers SET password = '".mysql_real_escape_string(md5($new_password))."'";
+		$strSQL .= "WHERE mobile = '".mysql_real_escape_string($mobile);
+		$strSQL .= "' AND app_id ='".mysql_real_escape_string($app_id)."";
+		$strSQL .= "' AND imei ='".mysql_real_escape_string($IMEI)."'";
+		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
+		if(mysql_affected_rows($this->connection) == 1){
+			return $new_password;
+		}else{
+			return false;
 		}
 	}
 
