@@ -110,9 +110,10 @@ class Customer {
 		$strSQL = "SELECT id FROM customers WHERE mobile = '".mysql_real_escape_string($mobile);
 		$strSQL .= "' AND app_id ='".$app_id."";
 		$strSQL .= "' AND imei ='".$IMEI."'";
+		
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 		if ( mysql_num_rows($rsRES) ==1 ){
-			$password->createPassword();
+			$password = $this->createPassword();
 			if($password){
 				return $password;//password generated
 			}else{

@@ -231,7 +231,7 @@ $app->post('/forget-password', function() use ($app) {
 
 	// read post params, if required
 	$action = $app->request()->post('action');
-	$mobile = md5($app->request()->post('mobile'));
+	$mobile = $app->request()->post('mobile');
 	$app_id = $app->request()->post('app_id');
 	$IMEI = $app->request()->post('IMEI');
 
