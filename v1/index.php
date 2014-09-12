@@ -7,8 +7,7 @@ require 'include/libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
 $app = new \Slim\Slim();
-require_once dirname(__FILE__) . '/include/class/class_customer.php';
-$customer = New Customer();
+
 
 //Global Variables
 $user_id = NULL;
@@ -116,57 +115,62 @@ $app->post('/validate-token', function() use ($app) {
 
 
 /**
- * forget_password
- * url - /forget_password
- * method - POST
- * params - action,mobile,app_id,IMEI
- */
-
-$app->post('/forget_password', function() use ($app) {
-	// check for required param, if required
-	verifyRequiredParams(array('action', 'mobile','app_id','IMEI'));
-
-	// read post params, if required
-	$action = $app->request()->post('action');
-	$mobile = md5($app->request()->post('mobile'));
-	$app_id = $app->request()->post('app_id');
-	$IMEI = $app->request()->post('IMEI');
-});
-
-/**
- * sign_up
- * url - /sign_up
+ * sign-up
+ * url - /sign-up
  * method - POST
  * params - action,email,mobile,name,app_id,IMEI
  */
 
-$app->post('/sign_up', function() use ($app) {
+$app->post('/sign-up', function() use ($app) {
 	// check for required param, if required
 	verifyRequiredParams(array('action','email', 'mobile','name','app_id','IMEI'));
+	
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = new Customer();
+
+	// define response array 
+	$response = array();
 
 	// read post params, if required
 	$user_data = array();
 	$user_data['action'] = $app->request()->post('action');
 	$user_data['email'] = $app->request()->post('email');
-	$user_data['mobile'] = md5($app->request()->post('mobile'));
+	$user_data['mobile'] = $app->request()->post('mobile');
 	$user_data['name'] = $app->request()->post('name');
 	$user_data['app_id'] = $app->request()->post('app_id');
 	$user_data['IMEI'] = $app->request()->post('IMEI');
 
 	if($customer->getUserByMobile($user_data['mobile'])){//customer exists
-		$response["action"] = "validate-token";
+		$response["action"] = "sign-up";
 		$response["error"] = 1;
 		$response["success"] = 0;
-		$response['error_message'] = "Invalid token identified";
+		$response['error_message'] = "Already registered with this mobile number";
 	}else{
 	
 		$customer_id = $customer->sign_up($user_data);
 	
 		if($customer_id){
-	
+			$cust_details = $customer->getUserById($customer_id);
+			
+			//account info sms
+			require_once dirname(__FILE__) . '/include/class/class_sms.php';
+			$sms = new Sms();
+			$message = 'Thankyou for registering  with Connect’n’Cabs. Your username is “'.$cust_details['mobile'].' and password is “'.$cust_details['password'].'". Enjoy our Service.';
+			//$sms->send_sms($cust_details['mobile'] ,$message);
+
+			$response["action"] = "sign-up";
+			$response["error"] = 0;
+			$response["success"] = 1;
+			$response['error_message'] = "";
+			$response['success_message'] = "Registration success password sent through sms";
 		}else{
-	
+			$response["action"] = "sign-up";
+			$response["error"] = 1;
+			$response["success"] = 0;
+			$response['error_message'] = "Registration failed";
 		}
+
+		
 	}
 	ReturnResponse(200, $response);
 });
@@ -180,8 +184,90 @@ $app->post('/sign_up', function() use ($app) {
  */
 
 $app->post('/login', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','mobile','password','app_id','IMEI'));
+	
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = new Customer();
+	$user_data = array();
 
+	// define response array 
+	$response = array();
+
+	// read post params, if required
+	$action = $app->request()->post('action');
+	$mobile = $app->request()->post('mobile');
+	$password = $app->request()->post('password');
+	$app_id = $app->request()->post('app_id');
+	$IMEI = $app->request()->post('IMEI');
+
+	$user_data = $customer->checkLogin($mobile, $password,$app_id,$IMEI);
+	if($user_data){
+		$response["action"] = "login";
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response['error_message'] = "";
+		$response['user_data'] = $user_data;	
+	}else{
+		$response["action"] = "login";
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response['error_message'] = "Invalid token identified";
+	}
+	ReturnResponse(200, $response);
 });
+
+
+/**
+ * forget_password
+ * url - /forget_password
+ * method - POST
+ * params - action,mobile,app_id,IMEI
+ */
+
+$app->post('/forget-password', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action', 'mobile','app_id','IMEI'));
+
+	// read post params, if required
+	$action = $app->request()->post('action');
+	$mobile = md5($app->request()->post('mobile'));
+	$app_id = $app->request()->post('app_id');
+	$IMEI = $app->request()->post('IMEI');
+
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = new Customer();
+
+	// define response array 
+	$response = array();
+
+	$reset_password = $customer->checkMobileAccountExists($mobile,$app_id,$IMEI);
+
+	if($reset_password){
+
+		//password sms
+		require_once dirname(__FILE__) . '/include/class/class_sms.php';
+		$sms = new Sms();
+		$message = 'Thankyou for interest     with Connect’n’Cabs. Your one time password is “'.$reset_password.'”.     Enjoy our Service.';
+		//$sms->send_sms($cust_details['mobile'] ,$message);
+
+		$response["action"] = "forget-password";
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response['error_message'] = "";
+		$response['success_message'] = "New password sent through sms";	
+
+	}else{
+		$response["action"] = "forget-password";
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response['error_message'] = "No account registered with this mobile";
+	}
+	
+	
+	ReturnResponse(200, $response);
+});
+
 
 /**
  * booking
