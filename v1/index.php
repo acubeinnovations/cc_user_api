@@ -346,14 +346,43 @@ $app->post('/booking', function() use ($app) {
 });
 
 /**
- * booking_list
- * url - /booking_list
+ * list-booking
+ * url - /list-booking
  * method - POST
  * params - action,app_id,IMEI,token
  */
 
-$app->post('/booking_list', function() use ($app) {
+$app->post('/list-booking', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','app_id','IMEI','token'));
 
+	require_once dirname(__FILE__) . '/include/class/class_trip.php';
+	$trip = new Trip();
+
+	// define response array
+	$response = array();
+	$action = $app->request()->post('action');
+	$token = $app->request()->post('token');
+	$app_id = $app->request()->post('app_id');
+	$IMEI  = $app->request()->post('IMEI');
+	
+	$booing_details = $trip->get_booking_details_by_customer($app_id,$IMEI,$token);
+	
+	if($booing_details){
+		$response["action"] = $action;
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response["booking_details"] = $booing_details;
+		
+	}else{
+		$response["action"] = $action;
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "no booking details avilable";
+	}
+
+	ReturnResponse(200, $response);
+	
 });
 
 

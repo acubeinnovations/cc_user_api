@@ -55,6 +55,37 @@ class Trip {
 		
 	}
 
+	public function get_booking_details_by_customer($app_id,$IMEI,$token)
+	{
+		$strSQL = "SELECT cust.name AS name,trip.*";
+		$strSQL .= " FROM trips trip,customers cust";
+		$strSQL .= " WHERE cust.app_id = '".mysql_real_escape_string($app_id)."' AND cust.imei = '".mysql_real_escape_string($IMEI)."' AND cust.token = '".mysql_real_escape_string($token)."' AND cust.id = trip.customer_id";
+		$strSQL .= " ORDER BY trip.booking_date DESC";
+		
+		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
+
+		$bookings = array();
+		if ( mysql_num_rows($rsRES) > 0 ){
+			while($row = mysql_fetch_assoc($rsRES)){
+				
+				$bookings[] = array(
+						'name' => $row['name'],
+						'from' => $row['trip_from'],
+						'to' => $row['trip_to'],
+						'date' => strtotime($row['booking_date']));
+			}
+			return $bookings;
+		}else{
+			$this->error_description = "Invalid Trip";
+			return false;
+		}
+
+	}
+
+
+
+
+
 
 }
 ?>
