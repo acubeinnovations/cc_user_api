@@ -48,7 +48,7 @@ class Customer {
 	}
 
 	
-	//create token with mobile number and time
+	//create token with mobile number and time md5 format
 	public function createToken($mobile = '')
 	{
 		if($mobile){
@@ -60,7 +60,7 @@ class Customer {
 	
 	}
 	
-	//create random password
+	//create random  6 char password
 	public function createPassword()
 	{
 		
@@ -98,6 +98,8 @@ class Customer {
 					'name' => mysql_result($rsRES,0,'name'),
 					'token' => $token
 					);
+				$update_token = "UPDATE customers SET token = '".mysql_real_escape_string($token)."' WHERE id = '".mysql_real_escape_string($userdata['id'])."'";
+				$rsRES = mysql_query($update_token,$this->connection) or die(mysql_error(). $update_token );
 				return $userdata;//token generated
 			}else{
 				return false;//token not generated
@@ -140,7 +142,7 @@ class Customer {
 		$strSQL .= "' AND imei ='".mysql_real_escape_string($IMEI)."'";
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 		if(mysql_affected_rows($this->connection) == 1){
-			return $new_password;
+			return true;
 		}else{
 			return false;
 		}
@@ -190,7 +192,7 @@ class Customer {
 	//validate token
 	public function validate_token($mobile,$token,$app_id,$IMEI)
 	{
-		$strSQL = "SELECT * FROM customers WHERE token = '".mysql_real_escape_string(md5($token));
+		$strSQL = "SELECT * FROM customers WHERE token = '".mysql_real_escape_string($token);
 		$strSQL .= "' AND app_id = '".mysql_real_escape_string($app_id);
 		$strSQL .= "' AND imei = '".mysql_real_escape_string($IMEI);
 		$strSQL .= "' AND mobile = '".mysql_real_escape_string($mobile);

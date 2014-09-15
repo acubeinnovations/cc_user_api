@@ -73,7 +73,7 @@ $app->post('/validate-token', function() use ($app) {
 
 	// read post params, if required
 	$action = $app->request()->post('action');
-	$token = md5($app->request()->post('token'));
+	$token = $app->request()->post('token');
 	$app_id = $app->request()->post('app_id');
 	$IMEI = $app->request()->post('IMEI');
 
@@ -240,14 +240,14 @@ $app->post('/forget-password', function() use ($app) {
 	$response = array();
 
 	$new_password = $customer->checkMobileAccountExists($mobile,$app_id,$IMEI);
-	$reset_password = $customer->reset_password($mobile,$app_id,$IMEI,$new_password);
+	$reset_password_check = $customer->reset_password($mobile,$app_id,$IMEI,$new_password);
 
-	if($reset_password){
+	if($reset_password_check){
 
 		//password sms
 		require_once dirname(__FILE__) . '/include/class/class_sms.php';
 		$sms = new Sms();
-		$message = 'Thankyou for interest     with Connect’n’Cabs. Your one time password is “'.$reset_password.'”.     Enjoy our Service.';
+		$message = 'Thankyou for interest     with Connect’n’Cabs. Your one time password is “'.$new_password.'”.     Enjoy our Service.';
 		//$sms->send_sms($cust_details['mobile'] ,$message);
 
 		$response["action"] = $action;
@@ -285,6 +285,7 @@ $app->post('/booking', function() use ($app) {
 	// define response array
 	$trip_data = array();
 	$response = array();
+	$action = $app->request()->post('action');
 	$mobile = $app->request()->post('mobile');
 	$token = $app->request()->post('token');
 	$app_id = $app->request()->post('app_id');
