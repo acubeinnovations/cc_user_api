@@ -195,7 +195,8 @@ class Customer {
 		$strSQL = "SELECT * FROM customers WHERE token = '".mysql_real_escape_string($token);
 		$strSQL .= "' AND app_id = '".mysql_real_escape_string($app_id);
 		$strSQL .= "' AND imei = '".mysql_real_escape_string($IMEI);
-		$strSQL .= "' AND mobile = '".mysql_real_escape_string($mobile);
+		if($mobile)
+			$strSQL .= "' AND mobile = '".mysql_real_escape_string($mobile);
 		$strSQL .= "'";
 
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );

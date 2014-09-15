@@ -85,7 +85,7 @@ $app->post('/validate-token', function() use ($app) {
 	//add your class, if required
 	require_once dirname(__FILE__) . '/include/class/class_customer.php';
 	$customer = New Customer();
-	$validate = $customer->validate_token($token,$app_id,$IMEI);
+	$validate = $customer->validate_token(false,$token,$app_id,$IMEI);
 
 
 	//please replace $validate ans $user_data with your variables
