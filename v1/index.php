@@ -392,10 +392,64 @@ $app->post('/list-booking', function() use ($app) {
 	
 });
 
+/**
+ * list-vehicle-types.json
+ * url - /vehicle-types.json
+ * method - POST
+ */
+
+$app->post('/vehicle-types.json', function() use ($app) {
+
+	require_once dirname(__FILE__) . '/include/class/class_list.php';
+	$list = new Listing();
+
+	// define response array
+	$response = array();
+
+	$vehicle_types = $list->vehicle_types();
+	if($vehicle_types){
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response["vehicle_types"] = $vehicle_types;
+	}else{
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "no vehicle types avilable";
+	}
+
+	ReturnResponse(200, $response);
+
+});
+
+/**
+ * list-trip-models.json
+ * url - /trip-models.json
+ * method - POST
+ */
+
+$app->post('/trip-models.json', function() use ($app) {
+
+	require_once dirname(__FILE__) . '/include/class/class_list.php';
+	$list = new Listing();
+
+	// define response array
+	$response = array();
+
+	$trip_models = $list->trip_models();
+
+	if($trip_models){
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response["vehicle_types"] = $trip_models;
+	}else{
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "no trip models avilable";
+	}
 
 
-
-
+	ReturnResponse(200, $response);
+});
 
 
 
