@@ -30,7 +30,7 @@ class Customer {
 			$strSQL .= "','".mysql_real_escape_string($user_data['IMEI']);
 			$strSQL .= "','".mysql_real_escape_string($token);
 			$strSQL .= "','".mysql_real_escape_string(md5($password));
-			$strSQL .= "','".mysql_real_escape_string(WALKIN_CUSTOMER));
+			$strSQL .= "','".mysql_real_escape_string(WALKIN_CUSTOMER);
 			$strSQL .= "','".mysql_real_escape_string(APP_REGISTRATION);
 			$strSQL .= "','".mysql_real_escape_string(ORG_CNC);
 			$strSQL .= "')";
