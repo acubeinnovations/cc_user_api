@@ -159,7 +159,7 @@ $app->post('/sign-up', function() use ($app) {
 			$response["action"] = $action;
 			$response["error"] = 0;
 			$response["success"] = 1;
-			$response['error_message'] = $message;//"";
+			$response['error_message'] = "";
 			$response['success_message'] = "Registration success password sent through sms";
 		}else{
 			$response["action"] = $action;
