@@ -147,21 +147,19 @@ $app->post('/sign-up', function() use ($app) {
 		$response['error_message'] = "Already registered with this mobile number";
 	}else{
 	
-		$customer_id = $customer->sign_up($user_data);
-	
+		list($new_id,$username,$password) = $customer->sign_up($user_data);
+		$customer_id = $customer->getId($username,$password);
 		if($customer_id){
-			$cust_details = $customer->getUserById($customer_id);
-			
 			//account info sms
 			require_once dirname(__FILE__) . '/include/class/class_sms.php';
 			$sms = new Sms();
-			$message = 'Thankyou for registering  with Connect’n’Cabs. Your username is “'.$cust_details['mobile'].' and password is “'.$cust_details['password'].'". Enjoy our Service.';
+			$message = "Thankyou for registering  with Connect n Cabs. Your username is '".$username."' and password is '".$password."'. Enjoy our Service.";
 			//$sms->send_sms($cust_details['mobile'] ,$message);
 
 			$response["action"] = $action;
 			$response["error"] = 0;
 			$response["success"] = 1;
-			$response['error_message'] = "";
+			$response['error_message'] = $message;//"";
 			$response['success_message'] = "Registration success password sent through sms";
 		}else{
 			$response["action"] = $action;

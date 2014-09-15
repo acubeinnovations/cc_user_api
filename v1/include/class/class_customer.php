@@ -29,13 +29,13 @@ class Customer {
 			$strSQL .= "','".mysql_real_escape_string($user_data['app_id']);
 			$strSQL .= "','".mysql_real_escape_string($user_data['IMEI']);
 			$strSQL .= "','".mysql_real_escape_string($token);
-			$strSQL .= "','".mysql_real_escape_string($password);
+			$strSQL .= "','".mysql_real_escape_string(md5($password));
 			$strSQL .= "')";
 	
 			$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 			if(mysql_affected_rows($this->connection) == 1){
 				$this->error_description = "Registration success password sent through sms";
-				return mysql_insert_id();
+				return array(mysql_insert_id(),$user_data['mobile'],$password);
 			}else{
 				$this->error_description = "Customer not added";
 				return false;
@@ -87,8 +87,8 @@ class Customer {
 	public function checkLogin($mobile, $password,$app_id,$IMEI) {
 
 		$strSQL = "SELECT id,name FROM customers WHERE mobile = '".mysql_real_escape_string($mobile);
-		$strSQL .= "' AND password='".mysql_real_escape_string(md5($password))."'";
-		$strSQL .= "' AND app_id ='".mysql_real_escape_string($app_id)."";
+		$strSQL .= "' AND password='".mysql_real_escape_string(md5($password));
+		$strSQL .= "' AND app_id ='".mysql_real_escape_string($app_id);
 		$strSQL .= "' AND imei ='".mysql_real_escape_string($IMEI)."'";
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
 		if ( mysql_num_rows($rsRES) ==1 ){
@@ -202,6 +202,20 @@ class Customer {
 		}
 		else{
 			return false;
+		}
+	}
+
+
+	public function getId($username, $password) {
+
+		$strSQL = "SELECT id FROM customers WHERE mobile = '".mysql_real_escape_string($username);
+		$strSQL .= "' AND password='".mysql_real_escape_string(md5($password))."'";
+		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
+		if ( mysql_num_rows($rsRES) ==1 ){
+			return mysql_result($rsRES,0,'id');
+		}
+		else{
+			return false;//user not found
 		}
 	}
 
