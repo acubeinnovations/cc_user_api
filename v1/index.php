@@ -286,14 +286,13 @@ $app->post('/booking', function() use ($app) {
 	$trip_data = array();
 	$response = array();
 	$action = $app->request()->post('action');
-	$mobile = $app->request()->post('mobile');
 	$token = $app->request()->post('token');
 	$app_id = $app->request()->post('app_id');
 	$IMEI  = $app->request()->post('IMEI');
 	$vehicle_type_id = $app->request()->post('vehicle_type_id');
 	$trip_model_id	= $app->request()->post('trip_model_id');
 
-	$user_detail = $customer->validate_token($mobile,$token,$app_id,$IMEI);
+	$user_detail = $customer->validate_token($token,$app_id,$IMEI);
 
 	
 	if($user_detail){
