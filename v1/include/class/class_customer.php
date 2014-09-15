@@ -22,7 +22,7 @@ class Customer {
 		$password = $this->createPassword();
 		if($token){
 			//new customer
-			$strSQL = "INSERT INTO customers(name,email,mobile,app_id,imei,token,password) VALUES(";
+			$strSQL = "INSERT INTO customers(name,email,mobile,app_id,imei,token,password,customer_type_id,registration_type_id,organisation_id) VALUES(";
 			$strSQL .= "'".mysql_real_escape_string($user_data['name']);
 			$strSQL .= "','".mysql_real_escape_string($user_data['email']);
 			$strSQL .= "','".mysql_real_escape_string($user_data['mobile']);
@@ -30,6 +30,9 @@ class Customer {
 			$strSQL .= "','".mysql_real_escape_string($user_data['IMEI']);
 			$strSQL .= "','".mysql_real_escape_string($token);
 			$strSQL .= "','".mysql_real_escape_string(md5($password));
+			$strSQL .= "','".mysql_real_escape_string(WALKIN_CUSTOMER));
+			$strSQL .= "','".mysql_real_escape_string(APP_REGISTRATION);
+			$strSQL .= "','".mysql_real_escape_string(ORG_CNC);
 			$strSQL .= "')";
 	
 			$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
