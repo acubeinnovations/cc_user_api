@@ -277,7 +277,7 @@ $app->post('/forget-password', function() use ($app) {
 
 $app->post('/booking', function() use ($app) {
 	// check for required param, if required
-	verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token'));
+	verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token','vehicle_type_id','trip_model_id'));
 
 	require_once dirname(__FILE__) . '/include/class/class_customer.php';
 	$customer = new Customer();
@@ -290,6 +290,8 @@ $app->post('/booking', function() use ($app) {
 	$token = $app->request()->post('token');
 	$app_id = $app->request()->post('app_id');
 	$IMEI  = $app->request()->post('IMEI');
+	$vehicle_type_id = $app->request()->post('vehicle_type_id');
+	$trip_model_id	= $app->request()->post('trip_model_id');
 
 	$user_detail = $customer->validate_token($mobile,$token,$app_id,$IMEI);
 
@@ -304,11 +306,17 @@ $app->post('/booking', function() use ($app) {
 		$dataArray = array(
 				'trip_from' => $app->request()->post('from'),
 				'trip_to'  => $app->request()->post('to'),
-				'booking_date'  => date('Y-m-d',strtotime($app->request()->post('date'))),
-				'booking_time' => date('h:i:s',strtotime($app->request()->post('time'))),
+				'booking_date'  => date('Y-m-d'),
+				'booking_time' => date('h:i:s'),
+				'pick_up_date'  => date('Y-m-d',strtotime($app->request()->post('date'))),
+				'pick_up_time' => date('h:i:s',strtotime($app->request()->post('time'))),
 				'priority'  => $app->request()->post('priority'),
 				'customer_id' => $user_detail['id'],
 				'customer_type_id'  => $app->request()->post('customer_type_id'),
+				'vehicle_type_id' => $vehicle_type_id,
+				'trip_model_id' => $trip_model_id,
+				'trip_status_id' => TRIP_STATUS_BOOKING,
+				'booking_source_id' => BOOKING_SOURCE_APP
 				);
 	
 		 $trip_id = $trip->booking($dataArray);

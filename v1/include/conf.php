@@ -16,4 +16,7 @@ define('WALKIN_CUSTOMER','1');
 define('APP_REGISTRATION','2');
 define('ORG_CNC','1');
 
+define('TRIP_STATUS_BOOKING','1');
+define('BOOKING_SOURCE_APP','4');
+
 ?>
