@@ -72,7 +72,8 @@ class Trip {
 						'name' => $row['name'],
 						'from' => $row['trip_from'],
 						'to' => $row['trip_to'],
-						'date' => strtotime($row['booking_date']));
+						'date' => strtotime($row['booking_date']." ".$row['booking_time'])
+						);
 			}
 			return $bookings;
 		}else{

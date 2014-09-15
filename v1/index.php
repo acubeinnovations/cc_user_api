@@ -321,7 +321,7 @@ $app->post('/booking', function() use ($app) {
 			$trip_data['mobile'] = $user_detail['mobile'];
 			$trip_data['from'] = $trip_detail['trip_from'];
 			$trip_data['to'] = $trip_detail['trip_to'];
-			$trip_data['date'] = $trip_detail['booking_date'];
+			$trip_data['date'] = strtotime($trip_detail['booking_date']." ".$trip_detail['booking_time']);
 			$trip_data['confirmation'] = "1";
 
 			$response["action"] = $action;
