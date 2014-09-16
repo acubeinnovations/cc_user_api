@@ -85,7 +85,7 @@ $app->post('/validate-token', function() use ($app) {
 	//add your class, if required
 	require_once dirname(__FILE__) . '/include/class/class_customer.php';
 	$customer = New Customer();
-	$validate = $customer->validate_token(false,$token,$app_id,$IMEI);
+	$validate = $customer->validate_token($token,$app_id,$IMEI);
 
 
 	//please replace $validate ans $user_data with your variables
@@ -277,7 +277,7 @@ $app->post('/forget-password', function() use ($app) {
 
 $app->post('/booking', function() use ($app) {
 	// check for required param, if required
-	verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token','vehicle_type_id','trip_model_id'));
+	//verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token','vehicle_type_id','trip_model_id'));
 
 	require_once dirname(__FILE__) . '/include/class/class_customer.php';
 	$customer = new Customer();
@@ -294,6 +294,8 @@ $app->post('/booking', function() use ($app) {
 
 	$user_detail = $customer->validate_token($token,$app_id,$IMEI);
 
+
+
 	
 	if($user_detail){
 		require_once dirname(__FILE__) . '/include/class/class_trip.php';
@@ -303,8 +305,6 @@ $app->post('/booking', function() use ($app) {
 		// read post params
 		$action = $app->request()->post('action');
 		$dataArray = array(
-				'trip_from' => $app->request()->post('from'),
-				'trip_to'  => $app->request()->post('to'),
 				'booking_date'  => date('Y-m-d'),
 				'booking_time' => date('h:i:s'),
 				'pick_up_date'  => date('Y-m-d',strtotime($app->request()->post('date'))),
@@ -314,9 +314,23 @@ $app->post('/booking', function() use ($app) {
 				'customer_type_id'  => $app->request()->post('customer_type_id'),
 				'vehicle_type_id' => $vehicle_type_id,
 				'trip_model_id' => $trip_model_id,
-				'trip_status_id' => TRIP_STATUS_BOOKING,
+				'trip_status_id' => TRIP_STATUS_PENDING,
 				'booking_source_id' => BOOKING_SOURCE_APP
 				);
+		$from = $app->request()->post('from');
+		
+		$to = $app->request()->post('to');
+		$dataArray['pick_up_city'] = $from['city'];
+		$dataArray['pick_up_area'] = $from['area'];
+		$dataArray['pick_up_landmark'] = $from['landmark'];
+		$dataArray['pick_up_lat'] = $from['lat'];
+		$dataArray['pick_up_lng'] = $from['long'];
+
+		$dataArray['drop_city'] = $to['city'];
+		$dataArray['drop_area'] = $to['area'];
+		$dataArray['drop_landmark'] = $to['landmark'];
+		$dataArray['drop_lat'] = $to['lat'];
+		$dataArray['drop_lng'] = $to['long'];
 	
 		 $trip_id = $trip->booking($dataArray);
 
@@ -326,8 +340,17 @@ $app->post('/booking', function() use ($app) {
 
 			$trip_data['name'] = $user_detail['name'];
 			$trip_data['mobile'] = $user_detail['mobile'];
-			$trip_data['from'] = $trip_detail['trip_from'];
-			$trip_data['to'] = $trip_detail['trip_to'];
+			$trip_data['from'] = array(
+						'city'=>$trip_detail['pick_up_city'],
+						'area'=>$trip_detail['pick_up_area'],
+						'lankmark'=>$trip_detail['pick_up_landmark'],		
+						);
+			$trip_data['to'] = array(
+						'city'=>$trip_detail['drop_city'],
+						'area'=>$trip_detail['drop_area'],
+						'lankmark'=>$trip_detail['drop_landmark'],		
+						);
+			$trip_data['trip_date'] = date('d-M-y h:i a',strtotime($trip_detail['pick_up_date']." ".$trip_detail['pick_up_time']));
 			$trip_data['date'] = strtotime($trip_detail['booking_date']." ".$trip_detail['booking_time']);
 			$trip_data['confirmation'] = "1";
 

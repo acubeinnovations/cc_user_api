@@ -69,10 +69,21 @@ class Trip {
 			while($row = mysql_fetch_assoc($rsRES)){
 				
 				$bookings[] = array(
+						'id'	=> $row['id'],
 						'name' => $row['name'],
-						'from' => $row['trip_from'],
-						'to' => $row['trip_to'],
-						'date' => strtotime($row['booking_date']." ".$row['booking_time'])
+						'from' => array(
+								'city' => $row['pick_up_city'],
+								'area' => $row['pick_up_area'],
+								'landmark' => $row['pick_up_landmark']
+								),
+						'to' => array(
+								'city' => $row['drop_city'],
+								'area' => $row['drop_area'],
+								'landmark' => $row['drop_landmark']
+								),						
+						'date' => strtotime($row['booking_date']." ".$row['booking_time']),
+						'trip_date' => date('d-M-y h:i a',strtotime($row['pick_up_date']." ".$row['pick_up_time'])),
+						'confirmation' => $row['trip_status_id']
 						);
 			}
 			return $bookings;

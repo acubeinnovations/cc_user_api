@@ -1,16 +1,64 @@
-validate-token :TEST
-<br/>
-<br/>
-Can use Firefox Plugin (REST Easy)
+<!DOCTYPE html>
+<html>
 
-<br/>
-<br/>
+<head>
+<meta charset="UTF-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
 
-<form action="http://userapi.cc.local/v1/validate-token" method="post">
-	action <input type="text" name="action" /> <br>
-	token <input type="text" name="token" /> <br>
-	app_id <input type="text" name="app_id" /> <br>
-	IMEI <input type="text" name="IMEI" /> <br>
+	
 
-	<p><input type="submit" value="Send" /></p>
-</form>
+	$('#booking').click(function(){
+
+		$.ajax({
+			type: "POST",
+			url: "http://userapi.cc.local/v1/booking",
+			data: {
+				"action":"booking",
+				"from":{"city":"kochi",
+					"area":"kaloor",
+					"landmark":"JNI Staduim",
+					"lat":10.255447557,
+					"long":11.222211
+				},
+				"to":{"city":"Kottayam",
+					"area":"Thirunakkara",
+					"landmark":"Temple",
+					"lat":10.255447557,
+					"long":11.222211
+				},
+				"date":"5-9-2014",
+				"time":"11:20",
+				"priority":"now",
+				"app_id":"app123",
+				"IMEI":"123456",
+				"token":"9f331543354f7d541ed590db8206c5d3",
+				"vehicle_type_id":1,
+				"trip_model_id":4
+				},
+			dataType:'json'
+		});
+
+	});
+
+	
+
+});
+</script>
+</head>
+<body>
+	booking :TEST
+	<br/>
+	<br/>
+	Can use Firefox Plugin (REST Easy)
+
+	<br/>
+	
+		
+
+		<p><input type="button" value="booking" id="booking"/></p>
+	
+</body>
+</html>
+
