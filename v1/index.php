@@ -469,6 +469,77 @@ $app->post('/locate-taxi', function() use ($app) {
 	ReturnResponse(200, $response);
 });
 
+/**
+ * single-booking
+ * url - /single-booking
+ * method - POST
+ * params - action,app_id,IMEI,token,booking_id
+ */
+
+$app->post('/single-booking', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','app_id','IMEI','token','booking_id'));
+
+	require_once dirname(__FILE__) . '/include/class/class_customer.php';
+	$customer = new Customer();
+
+	require_once dirname(__FILE__) . '/include/class/class_trip.php';
+	$trip = new Trip();
+
+	// define response array
+	$response = array();
+	
+	//read params
+	$action = $app->request()->post('action');
+	$token = $app->request()->post('token');
+	$app_id = $app->request()->post('app_id');
+	$IMEI  = $app->request()->post('IMEI');
+	$booking_id  = $app->request()->post('booking_id');
+
+	$user_detail = $customer->validate_token($token,$app_id,$IMEI);
+
+	if($user_detail){
+	
+		//get trip location log latest
+		$trip_detail = $trip->booking_details($booking_id);
+		if($trip_detail){
+
+			$trip_data['name'] = $user_detail['name'];
+			$trip_data['mobile'] = $user_detail['mobile'];
+			$trip_data['from'] = array(
+						'city'=>$trip_detail['pick_up_city'],
+						'area'=>$trip_detail['pick_up_area'],
+						'lankmark'=>$trip_detail['pick_up_landmark'],		
+						);
+			$trip_data['to'] = array(
+						'city'=>$trip_detail['drop_city'],
+						'area'=>$trip_detail['drop_area'],
+						'lankmark'=>$trip_detail['drop_landmark'],		
+						);
+			$trip_data['trip_date'] = date('d-M-y h:i a',strtotime($trip_detail['pick_up_date']." ".$trip_detail['pick_up_time']));
+			$trip_data['date'] = strtotime($trip_detail['booking_date']." ".$trip_detail['booking_time']);
+			$trip_data['confirmation'] = "1";
+
+			$response["action"] = $action;
+			$response["error"] = 0;
+			$response["success"] = 1;
+			$response["booking_details"] = $trip_data;
+		}else{
+			$response["action"] = $action;
+			$response["error"] = 1;
+			$response["success"] = 0;
+			$response["message"] = "unexpected error occured try later";
+		}
+	}else{
+		$response["action"] = $action;
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "Invalid Token";
+	}
+
+	ReturnResponse(200, $response);
+});
+
 
 
 /**
