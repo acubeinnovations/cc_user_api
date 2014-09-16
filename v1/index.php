@@ -415,6 +415,50 @@ $app->post('/list-booking', function() use ($app) {
 });
 
 /**
+ * locate-taxi
+ * url - /locate-taxi
+ * method - POST
+ * params - action,app_id,IMEI,token,booking_id
+ */
+
+$app->post('/locate-taxi', function() use ($app) {
+	// check for required param, if required
+	verifyRequiredParams(array('action','app_id','IMEI','token','booking_id'));
+
+	require_once dirname(__FILE__) . '/include/class/class_vehicle_location_log.php';
+	$taxi_loc = new VehicleLocationLog();
+
+	// define response array
+	$response = array();
+	
+	//read params
+	$action = $app->request()->post('action');
+	$token = $app->request()->post('token');
+	$app_id = $app->request()->post('app_id');
+	$IMEI  = $app->request()->post('IMEI');
+	$booking_id  = $app->request()->post('booking_id');
+	
+	//get trip location log latest
+	$taxi_loc_detail = $taxi_loc->locate_taxi($booking_id);
+	if($taxi_loc_detail){
+		$response["action"] = $action;
+		$response["error"] = 0;
+		$response["success"] = 1;
+		$response["lat"] = $taxi_loc_detail['lat'];
+		$response["long"] = $taxi_loc_detail['lng'];
+	}else{
+		$response["action"] = $action;
+		$response["error"] = 1;
+		$response["success"] = 0;
+		$response["message"] = "unexpected error occured try later";
+	}
+
+	ReturnResponse(200, $response);
+});
+
+
+
+/**
  * list-vehicle-types.json
  * url - /vehicle-types.json
  * method - POST
