@@ -160,7 +160,7 @@ $app->post('/sign-up', function() use ($app) {
 			$response["error"] = 0;
 			$response["success"] = 1;
 			$response['error_message'] = "";
-			$response['success_message'] = "Registration success password sent through sms";
+			$response['success_message'] = $message;//"Registration success password sent through sms";
 		}else{
 			$response["action"] = $action;
 			$response["error"] = 1;
@@ -254,7 +254,7 @@ $app->post('/forget-password', function() use ($app) {
 		$response["error"] = 0;
 		$response["success"] = 1;
 		$response['error_message'] = "";
-		$response['success_message'] = "New password sent through sms";	
+		$response['success_message'] = $message;//"New password sent through sms";	
 
 	}else{
 		$response["action"] = $action;
