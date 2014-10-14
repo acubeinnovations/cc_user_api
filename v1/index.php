@@ -150,6 +150,7 @@ $app->post('/sign-up', function() use ($app) {
 		list($new_id,$username,$password) = $customer->sign_up($user_data);
 		$customer_id = $customer->getId($username,$password);
 		if($customer_id){
+			$customer->add_fa_customer($customer_id);
 			//account info sms
 			require_once dirname(__FILE__) . '/include/class/class_sms.php';
 			$sms = new Sms();
@@ -247,7 +248,7 @@ $app->post('/forget-password', function() use ($app) {
 		//password sms
 		require_once dirname(__FILE__) . '/include/class/class_sms.php';
 		$sms = new Sms();
-		$message = 'Thankyou for interest     with Connect’n’Cabs. Your one time password is “'.$new_password.'”.     Enjoy our Service.';
+		$message = "Thankyou for interest with Connect n Cabs. Your one time password is '“.$new_password.”'.  Enjoy our Service.";
 		//$sms->send_sms($cust_details['mobile'] ,$message);
 
 		$response["action"] = $action;
@@ -278,7 +279,7 @@ $app->post('/forget-password', function() use ($app) {
 $app->post('/booking', function() use ($app) {
 	// check for required param, if required
 	//verifyRequiredParams(array('action','from','to','mobile','date','time','priority','app_id','IMEI','token','vehicle_type_id','trip_model_id'));
-
+echo "hi";exit;
 	require_once dirname(__FILE__) . '/include/class/class_customer.php';
 	$customer = new Customer();
 
@@ -315,8 +316,10 @@ $app->post('/booking', function() use ($app) {
 				'vehicle_type_id' => $vehicle_type_id,
 				'trip_model_id' => $trip_model_id,
 				'trip_status_id' => TRIP_STATUS_PENDING,
-				'booking_source_id' => BOOKING_SOURCE_APP
+				'booking_source_id' => BOOKING_SOURCE_APP,
+				'organisation_id' => ORG_CNC
 				);
+
 		$from = $app->request()->post('from');
 		
 		$to = $app->request()->post('to');
@@ -548,7 +551,7 @@ $app->post('/single-booking', function() use ($app) {
  * method - POST
  */
 
-$app->post('/vehicle-types.json', function() use ($app) {
+$app->get('/vehicle-types.json', function() use ($app) {
 
 	require_once dirname(__FILE__) . '/include/class/class_list.php';
 	$list = new Listing();
@@ -577,7 +580,7 @@ $app->post('/vehicle-types.json', function() use ($app) {
  * method - POST
  */
 
-$app->post('/trip-models.json', function() use ($app) {
+$app->get('/trip-models.json', function() use ($app) {
 
 	require_once dirname(__FILE__) . '/include/class/class_list.php';
 	$list = new Listing();

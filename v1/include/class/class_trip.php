@@ -60,6 +60,7 @@ class Trip {
 		$strSQL = "SELECT cust.name AS name,trip.*";
 		$strSQL .= " FROM trips trip,customers cust";
 		$strSQL .= " WHERE cust.app_id = '".mysql_real_escape_string($app_id)."' AND cust.imei = '".mysql_real_escape_string($IMEI)."' AND cust.token = '".mysql_real_escape_string($token)."' AND cust.id = trip.customer_id";
+		$strSQL .= " AND trip.organisation_id = ".ORG_CNC;
 		$strSQL .= " ORDER BY trip.booking_date DESC";
 		
 		$rsRES = mysql_query($strSQL,$this->connection) or die(mysql_error(). $strSQL );
